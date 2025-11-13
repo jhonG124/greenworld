@@ -1,0 +1,12 @@
+# Node
+node_modules/
+.env
+package-lock.json
+
+# Builds
+dist/
+build/
+
+# Sistema
+.DS_Store
+Thumbs.db
