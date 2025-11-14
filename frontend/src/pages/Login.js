@@ -57,6 +57,7 @@ function Login() {
       if (res.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+
         setMensaje("✅ Verificación exitosa...");
         setTimeout(() => (window.location.href = "/perfil"), 1200);
       } else {
@@ -69,7 +70,42 @@ function Login() {
   };
 
   return (
-    {/* ... RESTO IGUAL ... */}
+    <div className="login-container">
+      <h2>Inicio de Sesión</h2>
+
+      {!mostrarOTP ? (
+        <form onSubmit={handleLogin}>
+          <input
+            type="email"
+            placeholder="Correo"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={contraseña}
+            onChange={(e) => setContraseña(e.target.value)}
+            required
+          />
+          <button type="submit">Iniciar Sesión</button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyOTP}>
+          <input
+            type="text"
+            placeholder="Código OTP"
+            value={codigoOTP}
+            onChange={(e) => setCodigoOTP(e.target.value)}
+            required
+          />
+          <button type="submit">Verificar Código</button>
+        </form>
+      )}
+
+      {mensaje && <p>{mensaje}</p>}
+    </div>
   );
 }
 

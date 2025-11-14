@@ -11,7 +11,9 @@ function Registro() {
     e.preventDefault();
     setMensaje("");
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    const passwordRegex =
+      /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+
     if (!passwordRegex.test(contraseña)) {
       setMensaje(
         "⚠️ La contraseña debe tener al menos 8 caracteres, una mayúscula y un carácter especial."
@@ -43,7 +45,39 @@ function Registro() {
   };
 
   return (
-    {/* ... RESTO IGUAL ... */}
+    <div className="registro-container">
+      <h2>Registro de Usuario</h2>
+
+      <form onSubmit={handleRegister}>
+        <input
+          type="text"
+          placeholder="Nombre"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+
+        <input
+          type="email"
+          placeholder="Correo"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={contraseña}
+          onChange={(e) => setContraseña(e.target.value)}
+          required
+        />
+
+        <button type="submit">Registrarse</button>
+      </form>
+
+      {mensaje && <p>{mensaje}</p>}
+    </div>
   );
 }
 

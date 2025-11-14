@@ -62,7 +62,29 @@ function Perfil() {
   };
 
   return (
-    {/* ... RESTO IGUAL ... */}
+    <div className="perfil-container">
+      <h2>Mi Perfil</h2>
+
+      {error && <p>{error}</p>}
+
+      {modoEdicion ? (
+        <div>
+          <input
+            type="text"
+            value={perfil.nombre || ""}
+            onChange={(e) => setPerfil({ ...perfil, nombre: e.target.value })}
+          />
+          <button onClick={guardarPerfil}>Guardar</button>
+        </div>
+      ) : (
+        <div>
+          <p><strong>Nombre:</strong> {perfil.nombre}</p>
+          <p><strong>Correo:</strong> {perfil.correo}</p>
+
+          <button onClick={() => setModoEdicion(true)}>Editar Perfil</button>
+        </div>
+      )}
+    </div>
   );
 }
 
