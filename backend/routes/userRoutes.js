@@ -20,5 +20,7 @@ router.get("/", async (req, res) => {
 // Rutas de perfil
 router.get("/:id", getProfile);
 router.put("/:id", updateProfile);
+router.get("/", authMiddleware, adminMiddleware, obtenerUsuarios);
+router.delete("/:id", authMiddleware, adminMiddleware, eliminarUsuario);
 
 export default router;

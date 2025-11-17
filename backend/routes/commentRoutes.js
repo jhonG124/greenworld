@@ -13,4 +13,7 @@ router.post("/", protect, addComment);
 // Solo admin puede eliminar comentarios
 router.delete("/:id", protect, adminOnly, deleteComment);
 
+router.get("/", authMiddleware, adminMiddleware, obtenerComentarios);
+router.delete("/:id", authMiddleware, adminMiddleware, eliminarComentario);
+
 export default router;
