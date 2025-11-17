@@ -3,9 +3,6 @@ import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import User from "../models/User.js";
 
-const otpStore = {}; // Guardará temporalmente los OTP generados
-
-// Configuración del correo
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -14,61 +11,56 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 🟢 LOGIN: Verifica usuario + contraseña y envía código de verificación
+// =========================
+// LOGIN – Paso 1
+// =========================
 export const loginUser = async (req, res) => {
   const { correo, contraseña } = req.body;
 
   try {
     const user = await User.findOne({ correo });
-    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
     const esValida = await bcrypt.compare(contraseña, user.contraseña);
-    if (!esValida) return res.status(400).json({ message: "Contraseña incorrecta" });
+    if (!esValida)
+      return res.status(400).json({ message: "Contraseña incorrecta" });
 
-    // Generar un código de 6 dígitos
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore[user._id] = otp;
 
-    // Guardar en BD por seguridad (opcional)
     user.codigo2FA = otp;
-    user.codigo2FAExpira = Date.now() + 5 * 60 * 1000; // 5 minutos
+    user.codigo2FAExpira = Date.now() + 5 * 60 * 1000;
     await user.save();
 
-    // Enviar el correo
     await transporter.sendMail({
       from: `"Green World 🌎" <${process.env.EMAIL_USER}>`,
-      to: user.correo,
-      subject: "Código de verificación (Green World)",
-      html: `
-        <h3>Hola, ${user.nombre}</h3>
-        <p>Tu código de verificación es:</p>
-        <h2>${otp}</h2>
-        <p>Este código expira en 5 minutos.</p>
-      `,
+      to: correo,
+      subject: "Código de verificación",
+      html: `<h2>${otp}</h2><p>Expira en 5 minutos.</p>`,
     });
 
-    console.log(`📨 Código OTP enviado a ${user.correo}: ${otp}`);
-
-    return res.json({
+    res.json({
       requireOTP: true,
       userId: user._id,
-      message: "Se ha enviado un código de verificación a tu correo electrónico",
+      message: "Código enviado al correo",
     });
   } catch (error) {
-    console.error("Error al iniciar sesión:", error);
+    console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 
-// 🟢 VERIFICAR CÓDIGO OTP
+// =========================
+// VERIFICAR OTP – Paso 2
+// =========================
 export const verifyOTP = async (req, res) => {
   const { userId, codigo } = req.body;
 
   try {
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!user)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
-    // Validar código y expiración
     if (
       !user.codigo2FA ||
       user.codigo2FA !== codigo ||
@@ -77,12 +69,10 @@ export const verifyOTP = async (req, res) => {
       return res.status(400).json({ message: "Código inválido o expirado" });
     }
 
-    // Limpiar el código de la BD
     user.codigo2FA = null;
     user.codigo2FAExpira = null;
     await user.save();
 
-    // Generar token JWT
     const token = jwt.sign(
       { id: user._id, rol: user.rol },
       process.env.JWT_SECRET,
@@ -99,7 +89,7 @@ export const verifyOTP = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error al verificar OTP:", error);
+    console.error(error);
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
