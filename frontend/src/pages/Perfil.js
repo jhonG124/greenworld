@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import API from "../api";
+import API_URL from "../config";
 
 function Perfil() {
   const [usuario, setUsuario] = useState(null);
@@ -32,7 +32,7 @@ function Perfil() {
 
   const obtenerPerfil = async (id) => {
     try {
-      const res = await fetch(`${API}/api/users/${id}`);
+      const res = await fetch(`${API_URL}/api/users/${id}`);
       if (!res.ok) throw new Error("No se pudo obtener el perfil");
 
       const data = await res.json();
@@ -45,7 +45,7 @@ function Perfil() {
 
   const guardarPerfil = async () => {
     try {
-      const res = await fetch(`${API}/api/users/${usuario.id}`, {
+      const res = await fetch(`${API_URL}/api/users/${usuario.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(perfil),
