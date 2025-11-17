@@ -7,7 +7,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// Obtener todos los usuarios (opcional)
+// Obtener todos los usuarios
 router.get("/", async (req, res) => {
   try {
     const users = await User.find().select("-contraseña");
@@ -17,10 +17,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Rutas de perfil
+// Obtener perfil por ID
 router.get("/:id", getProfile);
+
+// Actualizar perfil por ID
 router.put("/:id", updateProfile);
-router.get("/", authMiddleware, adminMiddleware, obtenerUsuarios);
-router.delete("/:id", authMiddleware, adminMiddleware, eliminarUsuario);
+
+// ❌ ELIMINAMOS rutas viejas que estaban causando el error:
+// router.get("/", authMiddleware, adminMiddleware, obtenerUsuarios);
+// router.delete("/:id", authMiddleware, adminMiddleware, eliminarUsuario);
 
 export default router;
