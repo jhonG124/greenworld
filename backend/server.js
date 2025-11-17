@@ -14,6 +14,7 @@ const app = express();
 // =========================
 const allowedOrigins = [
   "*", // Permitir todo temporalmente (Render no siempre acepta "*", pero lo probamos)
+  "https://greenworld-frontend-beryl.vercel.app",
   "https://greenworld.vercel.app",
   "https://greenworld-sigma.vercel.app",
   "https://greenwold-frontend-r1wwdhdks-jhons-projects-26dc5405.vercel.app",
