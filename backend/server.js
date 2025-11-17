@@ -10,30 +10,32 @@ dotenv.config();
 const app = express();
 
 // =========================
-// CORS FIX — versión estable
+// CORS FIX para Railway
 // =========================
-const allowedOrigins = [
-  "https://greenworld-frontend-beryl.vercel.app",
-  "https://greenworld.vercel.app",
-  "https://greenworld-sigma.vercel.app",
-  "https://greenworld-git-main-jhons-projects-26dc5405.vercel.app",
-  "http://localhost:5173",
-  "http://localhost:3000"
-];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      const allowed = [
+        "https://greenworld-frontend-beryl.vercel.app",
+        "https://greenworld.vercel.app",
+        "https://greenworld-sigma.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+      ];
+
+      if (!origin || allowed.includes(origin) || origin.includes("railway.app")) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS bloqueado por servidor"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
 
-// Middleware
 app.use(express.json());
 
-// Conexión a MongoDB
 connectDB();
 
 // Rutas
@@ -41,8 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRoutes);
 
-// Puerto
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`)
+);
