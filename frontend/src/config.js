@@ -1,2 +1,2 @@
-const API_URL = "https://greenworld-hjd8.onrender.com";
+const API_URL = "https://greenworld-production.up.railway.app";
 export default API_URL;

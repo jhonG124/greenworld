@@ -17,12 +17,12 @@ app.use(
   cors({
     origin: (origin, callback) => {
       const allowed = [
-        "https://greenworld-frontend-beryl.vercel.app",
-        "https://greenworld.vercel.app",
-        "https://greenworld-sigma.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:3000",
-      ];
+      "https://greenworld-frontend-beryl.vercel.app",
+      "https://greenworld.vercel.app",
+      "https://greenworld-sigma.vercel.app",
+      "http://localhost:5173",
+      "http://localhost:3000",
+    ];
 
       if (!origin || allowed.includes(origin) || origin.includes("railway.app")) {
         callback(null, true);
