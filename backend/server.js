@@ -1,49 +1,85 @@
+// -------------------------
+// 📌 IMPORTS
+// -------------------------
 import express from "express";
-import dotenv from "dotenv";
+import mongoose from "mongoose";
 import cors from "cors";
-import connectDB from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
-import commentRoutes from "./routes/commentRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.js";
+import commentRoutes from "./routes/comments.js";
+import userRoutes from "./routes/users.js";
 
+// -------------------------
+// 📌 CONFIGURACIONES
+// -------------------------
 dotenv.config();
 const app = express();
 
-// =========================
-// CORS FIX para Railway
-// =========================
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      const allowed = [
-      "https://greenworld-frontend-beryl.vercel.app",
-      "https://greenworld.vercel.app",
-      "https://greenworld-sigma.vercel.app",
-      "http://localhost:5173",
-      "http://localhost:3000",
-    ];
-
-      if (!origin || allowed.includes(origin) || origin.includes("railway.app")) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS bloqueado por servidor"));
-      }
-    },
-    credentials: true,
-  })
-);
-
 app.use(express.json());
+app.use(cookieParser());
 
-connectDB();
+// -------------------------
+// 📌 CORS CONFIG (PERFECTO PARA NETLIFY + RAILWAY)
+// -------------------------
+const allowedOrigins = [
+  "https://lovely-blancmange-094737.netlify.app",  // tu frontend en netlify
+  "http://localhost:3000",
+  "http://localhost:5173"
+];
 
-// Rutas
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS bloqueado: origen no permitido"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+}));
+
+// -------------------------
+// 📌 RUTAS API
+// -------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRoutes);
 
+// -------------------------
+// 📌 RUTA DE PRUEBA
+// -------------------------
+app.get("/", (req, res) => {
+  res.send("API funcionando correctamente 🚀");
+});
+
+// -------------------------
+// 📌 MANEJO GLOBAL DE ERRORES
+// -------------------------
+app.use((err, req, res, next) => {
+  console.error("❌ ERROR GLOBAL:", err.message);
+
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Error interno del servidor",
+  });
+});
+
+// -------------------------
+// 📌 CONEXIÓN A MONGODB
+// -------------------------
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 15000,
+  })
+  .then(() => console.log("✅ MongoDB conectado correctamente"))
+  .catch((err) => console.error("❌ Error conectando a MongoDB:", err));
+
+// -------------------------
+// 📌 PUERTO SERVIDOR
+// -------------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`)
-);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor funcionando en puerto ${PORT}`);
+});
