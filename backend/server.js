@@ -20,24 +20,30 @@ app.use(express.json());
 app.use(cookieParser());
 
 // -------------------------
-// 📌 CORS CONFIG (PERFECTO PARA NETLIFY + RAILWAY)
+// 📌 CORS CONFIG — COMPATIBLE CON NETLIFY + RAILWAY
 // -------------------------
 const allowedOrigins = [
-  "https://lovely-blancmange-094737.netlify.app",  // tu frontend en netlify
+  "https://lovely-blancmange-094737.netlify.app", 
   "http://localhost:3000",
   "http://localhost:5173"
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("CORS bloqueado: origen no permitido"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permite llamadas sin origen (ej: Postman, servidor interno)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("CORS bloqueado: origen no permitido"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 
 // -------------------------
 // 📌 RUTAS API
@@ -47,7 +53,7 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/users", userRoutes);
 
 // -------------------------
-// 📌 RUTA DE PRUEBA
+// 📌 RUTA RAÍZ (TEST API)
 // -------------------------
 app.get("/", (req, res) => {
   res.send("API funcionando correctamente 🚀");
@@ -59,7 +65,7 @@ app.get("/", (req, res) => {
 app.use((err, req, res, next) => {
   console.error("❌ ERROR GLOBAL:", err.message);
 
-  res.status(err.status || 500).json({
+  return res.status(err.status || 500).json({
     success: false,
     message: err.message || "Error interno del servidor",
   });
@@ -76,7 +82,7 @@ mongoose
   .catch((err) => console.error("❌ Error conectando a MongoDB:", err));
 
 // -------------------------
-// 📌 PUERTO SERVIDOR
+// 📌 PUERTO SERVIDOR (IMPORTANTE PARA RAILWAY)
 // -------------------------
 const PORT = process.env.PORT || 5000;
 
